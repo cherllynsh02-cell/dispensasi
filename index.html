@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispensasi SMAN 1 Magetan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --lavender: #E6E6FA;
+            --lilac: #C8A2C8;
+            --deep-purple: #6A5ACD;
+            --soft-white: #fdfbff;
+        }
+
+        body { 
+            background-color: var(--lavender); 
+            font-family: 'Poppins', 'Segoe UI', sans-serif; 
+            color: #4a4a4a;
+        }
+
+        /* Header Style */
+        .welcome-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 3px solid var(--lilac);
+            box-shadow: 0 8px 20px rgba(200, 162, 200, 0.3);
+            text-align: center;
+        }
+
+        .welcome-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--lilac);
+            margin-bottom: 15px;
+        }
+
+        .navbar { 
+            background-color: var(--deep-purple); 
+            border-bottom: 4px solid var(--lilac);
+        }
+
+        .card { 
+            border-radius: 20px; 
+            border: none; 
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+
+        .btn-primary {
+            background-color: var(--deep-purple);
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--lilac);
+            transform: translateY(-2px);
+        }
+
+        .table thead { 
+            background-color: var(--lilac); 
+            color: white; 
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid var(--lavender);
+        }
+
+        .form-control:focus {
+            border-color: var(--lilac);
+            box-shadow: none;
+        }
+
+        .aesthetic-title {
+            color: var(--deep-purple);
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body onload="muatDataDispensasi()">
+
+<nav class="navbar navbar-dark shadow-sm mb-4">
+    <div class="container justify-content-center">
+        <span class="navbar-brand fw-bold"><i class="bi bi-stars me-2"></i>SMAN 1 MAGETAN</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="welcome-section animate__animated animate__fadeIn">
+        <img src="https://via.placeholder.com/150" alt="SMASA" class="welcome-img"> <h2 class="aesthetic-title">Halo! Selamat Datang di Web Dispensasi Siswa</h2>
+        <p class="text-muted small">Silahkan isi formulir dispensasi dengan jujur dan jelas ya! ✨</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card p-4">
+                <h5 class="mb-4 aesthetic-title"><i class="bi bi-pencil-square me-2"></i>Form Izin Dispensasi</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Tanggal</label>
+                    <input type="date" id="tglDispensasi" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Nama Lengkap</label>
+                    <input type="text" id="namaSiswa" class="form-control" placeholder="Masukkan nama kamu">
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold">Jam Mulai</label>
+                        <input type="time" id="jamMulai" class="form-control">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold">Jam Selesai</label>
+                        <input type="time" id="jamSelesai" class="form-control">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Guru Pemberi Izin</label>
+                    <input type="text" id="guruIzin" class="form-control" placeholder="Nama Guru">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Alasan Jelas & Jujur</label>
+                    <textarea id="alasan" class="form-control" rows="3" placeholder="Sebutkan alasanmu..."></textarea>
+                </div>
+                
+                <button id="btnKirim" onclick="kirimData()" class="btn btn-primary w-100 fw-bold shadow">
+                    <i class="bi bi-send-fill me-2"></i>AJUKAN DISPENSASI
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <h5 class="mb-4 aesthetic-title"><i class="bi bi-list-stars me-2"></i>Daftar Presensi Dispensasi</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Nama Siswa</th>
+                                <th>Alasan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelDispensasi">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // MASUKKAN URL GOOGLE APPS SCRIPT KAMU DI SINI
+    const API_URL = "URL_APPS_SCRIPT_ANDA_DISINI";
+
+    async function muatDataDispensasi() {
+        const tabel = document.getElementById('tabelDispensasi');
+        tabel.innerHTML = "<tr><td colspan='3' class='text-center'>Mencari data... 🌸</td></tr>";
+        
+        try {
+            const res = await fetch(API_URL + "?action=read");
+            const data = await res.json();
+            
+            tabel.innerHTML = data.map(row => `
+                <tr>
+                    <td><span class="badge bg-light text-dark border">${row[0]}</span></td>
+                    <td><strong>${row[1]}</strong></td>
+                    <td class="small text-muted">${row[2]}</td>
+                </tr>
+            `).reverse().join('');
+        } catch (e) {
+            tabel.innerHTML = "<tr><td colspan='3' class='text-center text-danger'>Gagal memuat data.</td></tr>";
+        }
+    }
+
+    async function kirimData() {
+        const tgl = document.getElementById('tglDispensasi').value;
+        const nama = document.getElementById('namaSiswa').value;
+        const mulai = document.getElementById('jamMulai').value;
+        const selesai = document.getElementById('jamSelesai').value;
+        const guru = document.getElementById('guruIzin').value;
+        const alasan = document.getElementById('alasan').value;
+
+        if(!tgl || !nama || !alasan || !guru) return alert("Ups! Semua data (terutama alasan jujur) harus diisi ya! ✨");
+
+        const btn = document.getElementById('btnKirim');
+        btn.disabled = true;
+        btn.innerHTML = "Mengirim... ✨";
+
+        const payload = {
+            action: "create",
+            tanggal: tgl,
+            nama: nama,
+            mulai: mulai,
+            selesai: selesai,
+            guru: guru,
+            alasan: alasan
+        };
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            alert("Berhasil! Data dispensasi sudah tersimpan di spreadsheet. 💜");
+            location.reload();
+        } catch (e) {
+            alert("Ada kesalahan teknis.");
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
